@@ -350,28 +350,28 @@ function Save-MyShorts
     }
 }
 
-function Load-MyShorts
+function Import-MyShorts
 {
     <#
 .SYNOPSIS
-    Loads shortcuts from the JSON file.
+    Imports shortcuts from the JSON file.
 
 .DESCRIPTION
     Reloads shortcuts from the storage file, overwriting current shortcuts.
 
 .EXAMPLE
-    Load-MyShorts
+    Import-MyShorts
 
-    Loads shortcuts from the default storage file.
+    Imports shortcuts from the default storage file.
 #>
     [CmdletBinding()]
     param()
 
     Initialize-MyShorts
-    Write-Verbose "Shortcuts loaded from $script:StoragePath"
+    Write-Verbose "Shortcuts imported from $script:StoragePath"
 }
 
 # Initialize shortcuts on module import
 Initialize-MyShorts
 
-Export-ModuleMember -Function Add-MyShort, Get-MyShorts, Invoke-MyShort, Set-MyShort, Remove-MyShort, Select-MyShort, Save-MyShorts, Load-MyShorts
+Export-ModuleMember -Function Add-MyShort, Get-MyShorts, Invoke-MyShort, Set-MyShort, Remove-MyShort, Select-MyShort, Save-MyShorts, Import-MyShorts
