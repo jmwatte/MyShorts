@@ -292,10 +292,11 @@ function Select-MyShort
     }
 
     if (Get-Command fzf -ErrorAction SilentlyContinue) {
-        $choice = ($entries | ForEach-Object { $_.Name } | fzf).TrimStart([char]0xFEFF).Trim()
+        $choice = ($entries | ForEach-Object { "$($_.Name) - $($_.Description)" } | fzf).TrimStart([char]0xFEFF).Trim()
         if ($choice)
         {
-            $entry = $script:MyShorts[$choice]
+            $name = ($choice -split ' - ')[0]
+            $entry = $script:MyShorts[$name]
             if ($entry) {
                 $command = $entry.Command.ToString()
                 if (Get-Module PSReadLine -ErrorAction SilentlyContinue) {
@@ -305,7 +306,7 @@ function Select-MyShort
                     Write-Host $command
                 }
             } else {
-                Write-Warning "Shortcut '$choice' not found in hashtable."
+                Write-Warning "Shortcut '$name' not found in hashtable."
             }
         }
     } elseif (Get-Command Out-GridView -ErrorAction SilentlyContinue) {
