@@ -10,7 +10,8 @@ function Initialize-MyShorts {
             $data = Get-Content $script:StoragePath | ConvertFrom-Json
             # Convert back to hashtable with scriptblocks
             foreach ($key in $data.PSObject.Properties.Name) {
-                $script:MyShorts[$key.Trim()] = @{
+                $cleanKey = $key.TrimStart([char]0xFEFF).Trim()
+                $script:MyShorts[$cleanKey] = @{
                     Command     = [scriptblock]::Create($data.$key.Command)
                     Description = $data.$key.Description
                     Category    = $data.$key.Category
@@ -89,7 +90,7 @@ function Add-MyShort
         return
     }
 
-    Set-MyShortEntry -Name $Name.Trim() -Command $Command -Description $Description -Category $Category
+    Set-MyShortEntry -Name $Name.TrimStart([char]0xFEFF).Trim() -Command $Command -Description $Description -Category $Category
     Write-Verbose "Added shortcut '$Name'."
 }
 
@@ -214,7 +215,7 @@ function Set-MyShort
         [string]$Category = "General"
     )
 
-    Set-MyShortEntry -Name $Name.Trim() -Command $Command -Description $Description -Category $Category
+    Set-MyShortEntry -Name $Name.TrimStart([char]0xFEFF).Trim() -Command $Command -Description $Description -Category $Category
     Write-Verbose "Set shortcut '$Name'."
 }
 
@@ -291,7 +292,7 @@ function Select-MyShort
     }
 
     if (Get-Command fzf -ErrorAction SilentlyContinue) {
-        $choice = ($entries | ForEach-Object { $_.Name } | fzf).Trim()
+        $choice = ($entries | ForEach-Object { $_.Name } | fzf).TrimStart([char]0xFEFF).Trim()
         Write-Host "Debug: Choice = '$choice'"
         Write-Host "Debug: Keys = $($script:MyShorts.Keys -join ', ')"
         if ($choice)
