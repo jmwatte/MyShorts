@@ -291,7 +291,7 @@ function Select-MyShort
     }
 
     if (Get-Command fzf -ErrorAction SilentlyContinue) {
-        $choice = $entries | ForEach-Object { $_.Name } | fzf
+        $choice = ($entries | ForEach-Object { $_.Name } | fzf).Trim()
         if ($choice)
         {
             $command = $script:MyShorts[$choice].Command.ToString()
