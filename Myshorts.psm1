@@ -301,7 +301,7 @@ function Select-MyShort
                 $command = $entry.Command.ToString()
                 if (Get-Module PSReadLine -ErrorAction SilentlyContinue) {
                     [Microsoft.PowerShell.PSConsoleReadLine]::AddToHistory($command)
-                    [Microsoft.PowerShell.PSConsoleReadLine]::RecallMostRecentHistory()
+                    [Microsoft.PowerShell.PSConsoleReadLine]::PreviousHistory()
                 } else {
                     Write-Host $command
                 }
