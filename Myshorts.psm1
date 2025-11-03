@@ -292,15 +292,18 @@ function Select-MyShort
 
     if (Get-Command fzf -ErrorAction SilentlyContinue) {
         $choice = ($entries | ForEach-Object { $_.Name } | fzf).Trim()
+        Write-Host "Debug: Choice = '$choice'"
+        Write-Host "Debug: Keys = $($script:MyShorts.Keys -join ', ')"
         if ($choice)
         {
-            $command = $script:MyShorts[$choice].Command.ToString()
-            Write-Host "Selected command: $command"
-            # if (Get-Module PSReadLine -ErrorAction SilentlyContinue) {
-            #     [Microsoft.PowerShell.PSConsoleReadLine]::Insert($command)
-            # } else {
-            #     Write-Host $command
-            # }
+            $entry = $script:MyShorts[$choice]
+            Write-Host "Debug: Entry = $entry"
+            if ($entry) {
+                $command = $entry.Command.ToString()
+                Write-Host "Selected command: $command"
+            } else {
+                Write-Warning "Shortcut '$choice' not found in hashtable."
+            }
         }
     } elseif (Get-Command Out-GridView -ErrorAction SilentlyContinue) {
         $choice = $entries | Out-GridView -Title "Select a shortcut" -OutputMode Single
