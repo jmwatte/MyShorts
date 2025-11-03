@@ -299,12 +299,8 @@ function Select-MyShort
             $entry = $script:MyShorts[$name]
             if ($entry) {
                 $command = $entry.Command.ToString()
-                if (Get-Module PSReadLine -ErrorAction SilentlyContinue) {
-                    [Microsoft.PowerShell.PSConsoleReadLine]::AddToHistory($command)
-                    [Microsoft.PowerShell.PSConsoleReadLine]::PreviousHistory()
-                } else {
-                    Write-Host $command
-                }
+                Write-Host "Selected command: $command"
+                [Microsoft.PowerShell.PSConsoleReadLine]::AddToHistory($command)
             } else {
                 Write-Warning "Shortcut '$name' not found in hashtable."
             }
@@ -314,12 +310,8 @@ function Select-MyShort
         if ($choice)
         {
             $command = $script:MyShorts[$choice.Name].Command.ToString()
-            if (Get-Module PSReadLine -ErrorAction SilentlyContinue) {
-                [Microsoft.PowerShell.PSConsoleReadLine]::AddToHistory($command)
-                [Microsoft.PowerShell.PSConsoleReadLine]::RecallMostRecentHistory()
-            } else {
-                Write-Host $command
-            }
+            Write-Host "Selected command: $command"
+            [Microsoft.PowerShell.PSConsoleReadLine]::AddToHistory($command)
         }
     } else {
         Write-Warning "Neither fzf nor Out-GridView is available for interactive selection."
