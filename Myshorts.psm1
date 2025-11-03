@@ -10,7 +10,7 @@ function Initialize-MyShorts {
             $data = Get-Content $script:StoragePath | ConvertFrom-Json
             # Convert back to hashtable with scriptblocks
             foreach ($key in $data.PSObject.Properties.Name) {
-                $script:MyShorts[$key] = @{
+                $script:MyShorts[$key.Trim()] = @{
                     Command     = [scriptblock]::Create($data.$key.Command)
                     Description = $data.$key.Description
                     Category    = $data.$key.Category
@@ -89,7 +89,7 @@ function Add-MyShort
         return
     }
 
-    Set-MyShortEntry -Name $Name -Command $Command -Description $Description -Category $Category
+    Set-MyShortEntry -Name $Name.Trim() -Command $Command -Description $Description -Category $Category
     Write-Verbose "Added shortcut '$Name'."
 }
 
@@ -214,7 +214,7 @@ function Set-MyShort
         [string]$Category = "General"
     )
 
-    Set-MyShortEntry -Name $Name -Command $Command -Description $Description -Category $Category
+    Set-MyShortEntry -Name $Name.Trim() -Command $Command -Description $Description -Category $Category
     Write-Verbose "Set shortcut '$Name'."
 }
 
@@ -262,7 +262,7 @@ function Select-MyShort
 
 .DESCRIPTION
     Uses fzf to select a shortcut by name (optionally filtered by category)
-    and then invokes it. Falls back to Out-GridView if fzf is not available.
+    and inserts the command into the prompt for editing or execution.
 
 .PARAMETER Category
     Optional. Only show shortcuts in this category.
@@ -294,13 +294,23 @@ function Select-MyShort
         $choice = $entries | ForEach-Object { $_.Name } | fzf
         if ($choice)
         {
-            Invoke-MyShort -Name $choice
+            $command = $script:MyShorts[$choice].Command.ToString()
+            if (Get-Module PSReadLine -ErrorAction SilentlyContinue) {
+                [Microsoft.PowerShell.PSConsoleReadLine]::Insert($command)
+            } else {
+                Write-Host $command
+            }
         }
     } elseif (Get-Command Out-GridView -ErrorAction SilentlyContinue) {
         $choice = $entries | Out-GridView -Title "Select a shortcut" -OutputMode Single
         if ($choice)
         {
-            Invoke-MyShort -Name $choice.Name
+            $command = $script:MyShorts[$choice.Name].Command.ToString()
+            if (Get-Module PSReadLine -ErrorAction SilentlyContinue) {
+                [Microsoft.PowerShell.PSConsoleReadLine]::Insert($command)
+            } else {
+                Write-Host $command
+            }
         }
     } else {
         Write-Warning "Neither fzf nor Out-GridView is available for interactive selection."
