@@ -372,27 +372,7 @@ function Import-MyShorts
     Write-Verbose "Shortcuts imported from $script:StoragePath"
 }
 
-function List-MyShorts
-{
-    <#
-.SYNOPSIS
-    Lists all shortcuts.
-
-.DESCRIPTION
-    Displays a list of all stored shortcuts with their names, categories, and descriptions.
-
-.EXAMPLE
-    List-MyShorts
-
-    Lists all shortcuts.
-#>
-    [CmdletBinding()]
-    param()
-
-    Get-MyShorts
-}
-
 # Initialize shortcuts on module import
 Initialize-MyShorts
 
-Export-ModuleMember -Function Add-MyShort, Get-MyShorts, Invoke-MyShort, Set-MyShort, Remove-MyShort, Select-MyShort, Save-MyShorts, Import-MyShorts, List-MyShorts
+Export-ModuleMember -Function Add-MyShort, Get-MyShorts, Invoke-MyShort, Set-MyShort, Remove-MyShort, Select-MyShort, Save-MyShorts, Import-MyShorts
