@@ -299,7 +299,8 @@ function Select-MyShort
             if ($entry) {
                 $command = $entry.Command.ToString()
                 if (Get-Module PSReadLine -ErrorAction SilentlyContinue) {
-                    [Microsoft.PowerShell.PSConsoleReadLine]::Insert($command)
+                    $buffer = [Microsoft.PowerShell.PSConsoleReadLine]::GetBufferState()
+                    [Microsoft.PowerShell.PSConsoleReadLine]::Replace(0, $buffer.Buffer.Length, $command)
                 } else {
                     Write-Host $command
                 }
@@ -313,7 +314,8 @@ function Select-MyShort
         {
             $command = $script:MyShorts[$choice.Name].Command.ToString()
             if (Get-Module PSReadLine -ErrorAction SilentlyContinue) {
-                [Microsoft.PowerShell.PSConsoleReadLine]::Insert($command)
+                $buffer = [Microsoft.PowerShell.PSConsoleReadLine]::GetBufferState()
+                [Microsoft.PowerShell.PSConsoleReadLine]::Replace(0, $buffer.Buffer.Length, $command)
             } else {
                 Write-Host $command
             }
