@@ -295,22 +295,24 @@ function Select-MyShort
         if ($choice)
         {
             $command = $script:MyShorts[$choice].Command.ToString()
-            if (Get-Module PSReadLine -ErrorAction SilentlyContinue) {
-                [Microsoft.PowerShell.PSConsoleReadLine]::Insert($command)
-            } else {
-                Write-Host $command
-            }
+            Write-Host "Selected command: $command"
+            # if (Get-Module PSReadLine -ErrorAction SilentlyContinue) {
+            #     [Microsoft.PowerShell.PSConsoleReadLine]::Insert($command)
+            # } else {
+            #     Write-Host $command
+            # }
         }
     } elseif (Get-Command Out-GridView -ErrorAction SilentlyContinue) {
         $choice = $entries | Out-GridView -Title "Select a shortcut" -OutputMode Single
         if ($choice)
         {
             $command = $script:MyShorts[$choice.Name].Command.ToString()
-            if (Get-Module PSReadLine -ErrorAction SilentlyContinue) {
-                [Microsoft.PowerShell.PSConsoleReadLine]::Insert($command)
-            } else {
-                Write-Host $command
-            }
+            Write-Host "Selected command: $command"
+            # if (Get-Module PSReadLine -ErrorAction SilentlyContinue) {
+            #     [Microsoft.PowerShell.PSConsoleReadLine]::Insert($command)
+            # } else {
+            #     Write-Host $command
+            # }
         }
     } else {
         Write-Warning "Neither fzf nor Out-GridView is available for interactive selection."
