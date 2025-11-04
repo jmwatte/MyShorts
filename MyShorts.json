@@ -1,0 +1,12 @@
+{
+  "FolderName->AlbumName": {
+    "Description": "set $dest to artist and the albumsfoldername get put in the tags",
+    "Category": "OM",
+    "Command": "gci -dir $dest |%{$Al = $_.Name; GOT -Path $_ | SOT -Tags @{ Album = $Al } -WhatIf -PassThru}"
+  },
+  "Set Tags": {
+    "Description": "set $dest and change the tags on that",
+    "Category": "OM",
+    "Command": "$tags=@{AlbumArtists='';Artists=''};got $dest | sot -Tags $tags -WhatIf -PassThru"
+  }
+}
