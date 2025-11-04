@@ -2,7 +2,7 @@
 # A simple shortcut manager with categories
 
 $script:MyShorts = @{}
-$script:StoragePath = Join-Path $env:USERPROFILE "MyShorts.json"
+$script:StoragePath = Join-Path $PSScriptRoot "MyShorts.json"
 
 function Initialize-MyShorts {
     if (Test-Path $script:StoragePath) {
