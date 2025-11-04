@@ -322,7 +322,7 @@ function Select-MyShort
             $entry = $script:MyShorts[$name]
             if ($entry) {
                 $command = $entry.Command.ToString()
-                Write-Host "Selected command: $command"
+                Write-Host $command
                 [Microsoft.PowerShell.PSConsoleReadLine]::AddToHistory($command)
             } else {
                 Write-Warning "Shortcut '$name' not found in hashtable."
@@ -333,7 +333,7 @@ function Select-MyShort
         if ($choice)
         {
             $command = $script:MyShorts[$choice.Name].Command.ToString()
-            Write-Host "Selected command: $command"
+            Write-Host $command
             [Microsoft.PowerShell.PSConsoleReadLine]::AddToHistory($command)
         }
     } else {
