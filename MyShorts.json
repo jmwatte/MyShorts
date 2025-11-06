@@ -1,4 +1,14 @@
 {
+  "empty tag": {
+    "Description": "check if tag is empty",
+    "Category": "OM",
+    "Command": "$tag= \" \"; got $(pf)|Where-Object { !$_.$tag}"
+  },
+  "unique Tags": {
+    "Description": "set tag to the desired tag and it will make them unique blues,Blues will become Blues",
+    "Category": "OM",
+    "Command": "$dest=$(pf);$tag='';got $dest | sot -Transform {$_.$tag = ($_.$tag | ForEach-Object { $_.ToLower() } | Select-Object -Unique | ForEach-Object { (Get-Culture).TextInfo.ToTitleCase($_) });$_ } -PassThru -whatif"
+  },
   "FolderName->AlbumName": {
     "Description": "set $dest to artist and the albumsfoldername get put in the tags",
     "Category": "OM",
@@ -8,5 +18,10 @@
     "Description": "set $dest and change the tags on that",
     "Category": "OM",
     "Command": "$tags=@{AlbumArtists='';Artists=''};got $dest | sot -Tags $tags -WhatIf -PassThru"
+  },
+   "Set Year from Path": {
+    "Description": "Extract a 4-digit year from the path and set it as the Year tag",
+    "Category": "OM",
+    "Command": "$year = [regex]::Match($dest, '\\b(19|20|21)\\d{2}\\b').Value; if($year){ got $dest | sot -Tags @{ Year = $year } -WhatIf -PassThru }"
   }
 }
