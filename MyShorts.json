@@ -1,12 +1,27 @@
 {
-  "FolderName->AlbumName": {
-    "Description": "set $dest to artist and the albumsfoldername get put in the tags",
+  "year in $path ->$year tag": {
     "Category": "OM",
-    "Command": "gci -dir $dest |%{$Al = $_.Name; GOT -Path $_ | SOT -Tags @{ Album = $Al } -WhatIf -PassThru}"
+    "Command": "GOT $dest| SOT -Transform { $_.Path -match '\\b(19|20)\\d{2}\\b'; $_.Year=$matches[0]; $_ } -PassThru -WhatIf",
+    "Description": "year in the path, stick it in the $year tag"
   },
   "Set Tags": {
-    "Description": "set $dest and change the tags on that",
     "Category": "OM",
-    "Command": "$tags=@{AlbumArtists='';Artists=''};got $dest | sot -Tags $tags -WhatIf -PassThru"
+    "Command": "$tags=@{AlbumArtists='';Artists=''};got $dest | sot -Tags $tags -WhatIf -PassThru",
+    "Description": "set $dest and change the tags on that"
+  },
+  "FolderName->AlbumName": {
+    "Category": "OM",
+    "Command": "gci -dir $dest |%{$Al = $_.Name; GOT -Path $_ | SOT -Tags @{ Album = $Al } -WhatIf -PassThru}",
+    "Description": "set $dest to artist and the albumsfoldername get put in the tags"
+  },
+  "trim whiteSpace in Tags": {
+    "Category": "OM",
+    "Command": "GOT $dest | SOT -Transform { $_.$tag =@( $_.$tag.split(',').trim()); $_ } -WhatIf -PassThru",
+    "Description": "in$dest remove whitespace from $tag{AlbumArtists)"
+  },
+  "year-album ->albumtag": {
+    "Category": "OM",
+    "Command": " $album=($dest -split ' - ',2)[1] ; GOT -Path $dest | SOT -Tags @{Album=$album} -Force -PassThru ",
+    "Description": "splits year-album name and updates albumtag"
   }
 }
