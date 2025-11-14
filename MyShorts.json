@@ -39,15 +39,20 @@
     "Category": "OM",
     "Description": "in$dest remove whitespace from $tag{AlbumArtists)"
   },
+  "Set Year from Path": {
+    "Command": "got $dest | % { $year = [regex]::Match($_.Path, '\\b(19|20|21)\\d{2}\\b').Value; if($year){ $_ | sot -Tags @{ Year = $year } -WhatIf -PassThru } }",
+    "Category": "OM",
+    "Description": "Extract a 4-digit year from each file's path and set it as the Year tag"
+  },
   "year-album ->albumtag": {
     "Command": " $album=($dest -split ' - ',2)[1] ; GOT -Path $dest | SOT -Tags @{Album=$album} -Force -PassThru ",
     "Category": "OM",
     "Description": "splits year-album name and updates albumtag"
   },
-  "Set Year from Path": {
-    "Command": "got $dest | % { $year = [regex]::Match($_.Path, '\\b(19|20|21)\\d{2}\\b').Value; if($year){ $_ | sot -Tags @{ Year = $year } -WhatIf -PassThru } }",
+  "gciSOMQobuz": {
+    "Command": "cls;gci $dest -Directory|%{som $_ -provider Qobuz}",
     "Category": "OM",
-    "Description": "Extract a 4-digit year from each file's path and set it as the Year tag"
+    "Description": "on artist and every album gets tagged"
   },
   "add Genrestag": {
     "Command": "$tags=@{Genres=' '};got $dest | sot -Tags $tags -PassThru -WhatIf;got $dest -su",
