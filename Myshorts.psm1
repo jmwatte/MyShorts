@@ -415,6 +415,160 @@ function Get-MyShortCategories
     $script:MyShorts.Values.Category | Select-Object -Unique | Sort-Object
 }
 
+function Pull-MyShorts
+{
+    <#
+.SYNOPSIS
+    Pulls shortcuts from GitHub and merges with local shortcuts.
+
+.DESCRIPTION
+    Pulls the latest MyShorts.json from GitHub and intelligently merges
+    shortcuts. Remote shortcuts are added if they don't exist locally.
+    Local shortcuts are preserved (no overwrites). After merge, the
+    combined set is saved and reloaded.
+
+.EXAMPLE
+    Pull-MyShorts
+
+    Pulls and merges shortcuts from GitHub.
+#>
+    [CmdletBinding()]
+    param()
+
+    # Save current shortcuts before pulling
+    $localShortcuts = $script:MyShorts.Clone()
+    
+    Push-Location $PSScriptRoot
+    try {
+        Write-Host "Pulling from GitHub..." -ForegroundColor Cyan
+        $gitResult = git pull origin main 2>&1
+        
+        if ($LASTEXITCODE -ne 0) {
+            if ($gitResult -match "CONFLICT") {
+                Write-Warning "Merge conflict detected in MyShorts.json"
+                Write-Host "Attempting smart merge..." -ForegroundColor Yellow
+                
+                # Abort the conflicted merge
+                git merge --abort 2>&1 | Out-Null
+                
+                # Fetch remote changes
+                git fetch origin main 2>&1 | Out-Null
+                
+                # Load remote version
+                $remoteJson = git show origin/main:MyShorts.json 2>&1
+                if ($LASTEXITCODE -eq 0) {
+                    $remoteData = $remoteJson | ConvertFrom-Json
+                    
+                    # Merge: Add remote shortcuts that don't exist locally
+                    $addedCount = 0
+                    foreach ($key in $remoteData.PSObject.Properties.Name) {
+                        $cleanKey = $key.TrimStart([char]0xFEFF).Trim()
+                        if (-not $localShortcuts.ContainsKey($cleanKey)) {
+                            $entry = $remoteData.$key
+                            if ($entry.Command) {
+                                $localShortcuts[$cleanKey] = @{
+                                    Command     = [scriptblock]::Create($entry.Command)
+                                    Description = $entry.Description ?? ""
+                                    Category    = $entry.Category ?? "General"
+                                }
+                                $addedCount++
+                                Write-Verbose "Added remote shortcut: $cleanKey"
+                            }
+                        }
+                    }
+                    
+                    # Update in-memory shortcuts
+                    $script:MyShorts = $localShortcuts
+                    
+                    # Save merged version
+                    Save-MyShorts
+                    
+                    # Commit the merge
+                    git add MyShorts.json 2>&1 | Out-Null
+                    git commit -m "Merge remote shortcuts (added $addedCount new shortcuts)" 2>&1 | Out-Null
+                    
+                    Write-Host "Smart merge completed: Added $addedCount new shortcuts from remote" -ForegroundColor Green
+                } else {
+                    Write-Error "Failed to fetch remote MyShorts.json"
+                }
+            } else {
+                Write-Error "Git pull failed: $gitResult"
+            }
+        } else {
+            # No conflicts, just reload
+            Initialize-MyShorts
+            Write-Host "Shortcuts updated from GitHub" -ForegroundColor Green
+        }
+    } catch {
+        Write-Error "Failed to pull shortcuts: $_"
+    } finally {
+        Pop-Location
+    }
+}
+
+function Push-MyShorts
+{
+    <#
+.SYNOPSIS
+    Saves and pushes shortcuts to GitHub.
+
+.DESCRIPTION
+    Saves current shortcuts to MyShorts.json, commits the changes,
+    and pushes to GitHub.
+
+.PARAMETER Message
+    Optional commit message. Defaults to a timestamp.
+
+.EXAMPLE
+    Push-MyShorts
+
+    Saves and pushes with default message.
+
+.EXAMPLE
+    Push-MyShorts -Message "Added tagging shortcuts"
+
+    Saves and pushes with custom message.
+#>
+    [CmdletBinding()]
+    param(
+        [string]$Message
+    )
+
+    try {
+        # Save current shortcuts
+        Save-MyShorts
+        
+        Push-Location $PSScriptRoot
+        
+        # Check if there are changes
+        $status = git status --porcelain MyShorts.json 2>&1
+        if (-not $status) {
+            Write-Host "No changes to push" -ForegroundColor Yellow
+            return
+        }
+        
+        Write-Host "Pushing shortcuts to GitHub..." -ForegroundColor Cyan
+        
+        # Commit and push
+        git add MyShorts.json
+        
+        $commitMessage = if ($Message) { $Message } else { "Update shortcuts - $(Get-Date -Format 'yyyy-MM-dd HH:mm')" }
+        git commit -m $commitMessage
+        
+        git push origin main
+        
+        if ($LASTEXITCODE -eq 0) {
+            Write-Host "Shortcuts pushed to GitHub successfully" -ForegroundColor Green
+        } else {
+            Write-Error "Failed to push to GitHub. You may need to pull first."
+        }
+    } catch {
+        Write-Error "Failed to push shortcuts: $_"
+    } finally {
+        Pop-Location
+    }
+}
+
 # Tab completion for shortcut names
 Register-ArgumentCompleter -CommandName Invoke-MyShort, Set-MyShort, Remove-MyShort -ParameterName Name -ScriptBlock {
     param($commandName, $parameterName, $wordToComplete, $commandAst, $fakeBoundParameters)
@@ -434,4 +588,4 @@ Register-ArgumentCompleter -CommandName Get-MyShorts, Add-MyShort, Set-MyShort, 
 # Initialize shortcuts on module import
 Initialize-MyShorts
 
-Export-ModuleMember -Function Add-MyShort, Get-MyShorts, Invoke-MyShort, Set-MyShort, Remove-MyShort, Select-MyShort, Save-MyShorts, Import-MyShorts, Get-MyShortCategories
+Export-ModuleMember -Function Add-MyShort, Get-MyShorts, Invoke-MyShort, Set-MyShort, Remove-MyShort, Select-MyShort, Save-MyShorts, Import-MyShorts, Get-MyShortCategories, Pull-MyShorts, Push-MyShorts, pf

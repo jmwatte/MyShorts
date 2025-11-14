@@ -1,57 +1,67 @@
 {
-  "unique Tags": {
-    "Description": "set tag to the desired tag and it will make them unique blues,Blues will become Blues",
-    "Category": "OM",
-    "Command": "$dest=$(pf);$tag='';got $dest | sot -Transform {$_.$tag = ($_.$tag | ForEach-Object { $_.ToLower() } | Select-Object -Unique | ForEach-Object { (Get-Culture).TextInfo.ToTitleCase($_) });$_ } -PassThru -whatif"
-  },
-  "Set Year from Path": {
-    "Description": "Extract a 4-digit year from each file's path and set it as the Year tag",
-    "Category": "OM",
-    "Command": "got $dest | % { $year = [regex]::Match($_.Path, '\\b(19|20|21)\\d{2}\\b').Value; if($year){ $_ | sot -Tags @{ Year = $year } -WhatIf -PassThru } }"
-  },
-  "add Composertag": {
-    "Description": "add composertag; needs dest",
-    "Category": "OM",
-    "Command": "$tags=@{Composers=''};got $dest | sot -Tags $tags -PassThru -whatif ;got $dest -su"
-  },
-  "year in $path ->$year tag": {
-    "Category": "OM",
-    "Command": "GOT $dest| SOT -Transform { $_.Path -match '\\b(19|20)\\d{2}\\b'; $_.Year=$matches[0]; $_ } -PassThru -WhatIf",
-    "Description": "year in the path, stick it in the $year tag"
-  },
-  "force discAndTracks": {
-    "Description": "forces disc and track nuimbering",
-    "Category": "OM",
-    "Command": "Add-OMDiscNumbers -forceDiscs -forceTracks $dest -WhatIf;got $dest -su"
-  },
   "Set Tags": {
-    "Category": "OM",
     "Command": "$tags=@{AlbumArtists='';Artists=''};got $dest | sot -Tags $tags -WhatIf -PassThru",
+    "Category": "OM",
     "Description": "set $dest and change the tags on that"
   },
-  "FolderName->AlbumName": {
+  "force discAndTracks": {
+    "Command": "Add-OMDiscNumbers -forceDiscs -forceTracks $dest -WhatIf;got $dest -su",
     "Category": "OM",
+    "Description": "forces disc and track nuimbering"
+  },
+  "PickAndList": {
+    "Command": "$dest= $(pf);cls;gci $dest -Directory|%{got $_;write-host \"wwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwww\"};tree $dest /f",
+    "Category": "OM",
+    "Description": "start at artist,list albums"
+  },
+  "add Composertag": {
+    "Command": "$tags=@{Composers=''};got $dest | sot -Tags $tags -PassThru -whatif ;got $dest -su",
+    "Category": "OM",
+    "Description": "add composertag; needs dest"
+  },
+  "FolderName->AlbumName": {
     "Command": "gci -dir $dest |%{$Al = $_.Name; GOT -Path $_ | SOT -Tags @{ Album = $Al } -WhatIf -PassThru}",
+    "Category": "OM",
     "Description": "set $dest to artist and the albumsfoldername get put in the tags"
   },
-  "trim whiteSpace in Tags": {
+  "empty tag": {
+    "Command": "$tag= \" \"; got $(pf)|Where-Object { !$_.$tag}",
     "Category": "OM",
+    "Description": "check if tag is empty"
+  },
+  "year in $path ->$year tag": {
+    "Command": "GOT $dest| SOT -Transform { $_.Path -match '\\b(19|20)\\d{2}\\b'; $_.Year=$matches[0]; $_ } -PassThru -WhatIf",
+    "Category": "OM",
+    "Description": "year in the path, stick it in the $year tag"
+  },
+  "trim whiteSpace in Tags": {
     "Command": "GOT $dest | SOT -Transform { $_.$tag =@( $_.$tag.split(',').trim()); $_ } -WhatIf -PassThru",
+    "Category": "OM",
     "Description": "in$dest remove whitespace from $tag{AlbumArtists)"
   },
   "year-album ->albumtag": {
-    "Category": "OM",
     "Command": " $album=($dest -split ' - ',2)[1] ; GOT -Path $dest | SOT -Tags @{Album=$album} -Force -PassThru ",
+    "Category": "OM",
     "Description": "splits year-album name and updates albumtag"
   },
-  "add Genrestag": {
-    "Description": "add genres tagneeds dest",
+  "Set Year from Path": {
+    "Command": "got $dest | % { $year = [regex]::Match($_.Path, '\\b(19|20|21)\\d{2}\\b').Value; if($year){ $_ | sot -Tags @{ Year = $year } -WhatIf -PassThru } }",
     "Category": "OM",
-    "Command": "$tags=@{Genres=' '};got $dest | sot -Tags $tags -PassThru -WhatIf;got $dest -su"
+    "Description": "Extract a 4-digit year from each file's path and set it as the Year tag"
   },
-  "empty tag": {
-    "Description": "check if tag is empty",
+  "add Genrestag": {
+    "Command": "$tags=@{Genres=' '};got $dest | sot -Tags $tags -PassThru -WhatIf;got $dest -su",
     "Category": "OM",
-    "Command": "$tag= \" \"; got $(pf)|Where-Object { !$_.$tag}"
+    "Description": "add genres tagneeds dest"
+  },
+  "CleanAndMove": {
+    "Command": "$to=\"\";$tag=\"\" ; gci $dest -Directory|%{add-OMDiscNumbers -forceDiscs -forceTracks $_;got $_ -Details | sot -Transform {$_.$tag = ($_.$tag | ForEach-Object { $_.ToLower() } | Select-Object -Unique | ForEach-Object { (Get-Culture).TextInfo.ToTitleCase($_) });$_ } -PassThru;Move-OMTags $_ $to}",
+    "Category": "OM",
+    "Description": "fill in where and what"
+  },
+  "unique Tags": {
+    "Command": "$dest=$(pf);$tag='';got $dest | sot -Transform {$_.$tag = ($_.$tag | ForEach-Object { $_.ToLower() } | Select-Object -Unique | ForEach-Object { (Get-Culture).TextInfo.ToTitleCase($_) });$_ } -PassThru -whatif",
+    "Category": "OM",
+    "Description": "set tag to the desired tag and it will make them unique blues,Blues will become Blues"
   }
 }
