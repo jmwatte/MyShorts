@@ -374,25 +374,25 @@ function Save-MyShorts
     }
 }
 
-function Import-MyShorts
+function Update-MyShorts
 {
     <#
 .SYNOPSIS
-    Imports shortcuts from the JSON file.
+    Updates shortcuts from the JSON file.
 
 .DESCRIPTION
     Reloads shortcuts from the storage file, overwriting current shortcuts.
 
 .EXAMPLE
-    Import-MyShorts
+    Update-MyShorts
 
-    Imports shortcuts from the default storage file.
+    Updates shortcuts from the default storage file.
 #>
     [CmdletBinding()]
     param()
 
     Initialize-MyShorts
-    Write-Verbose "Shortcuts imported from $script:StoragePath"
+    Write-Verbose "Shortcuts updated from $script:StoragePath"
 }
 
 function Get-MyShortCategories
@@ -415,22 +415,22 @@ function Get-MyShortCategories
     $script:MyShorts.Values.Category | Select-Object -Unique | Sort-Object
 }
 
-function Pull-MyShorts
+function Import-MyShorts
 {
     <#
 .SYNOPSIS
-    Pulls shortcuts from GitHub and merges with local shortcuts.
+    Imports shortcuts from GitHub and merges with local shortcuts.
 
 .DESCRIPTION
-    Pulls the latest MyShorts.json from GitHub and intelligently merges
+    Imports the latest MyShorts.json from GitHub and intelligently merges
     shortcuts. Remote shortcuts are added if they don't exist locally.
     Local shortcuts are preserved (no overwrites). After merge, the
     combined set is saved and reloaded.
 
 .EXAMPLE
-    Pull-MyShorts
+    Import-MyShorts
 
-    Pulls and merges shortcuts from GitHub.
+    Imports and merges shortcuts from GitHub.
 #>
     [CmdletBinding()]
     param()
@@ -588,4 +588,4 @@ Register-ArgumentCompleter -CommandName Get-MyShorts, Add-MyShort, Set-MyShort, 
 # Initialize shortcuts on module import
 Initialize-MyShorts
 
-Export-ModuleMember -Function Add-MyShort, Get-MyShorts, Invoke-MyShort, Set-MyShort, Remove-MyShort, Select-MyShort, Save-MyShorts, Import-MyShorts, Get-MyShortCategories, Pull-MyShorts, Push-MyShorts, pf
+Export-ModuleMember -Function Add-MyShort, Get-MyShorts, Invoke-MyShort, Set-MyShort, Remove-MyShort, Select-MyShort, Save-MyShorts, Update-MyShorts, Get-MyShortCategories, Import-MyShorts, Push-MyShorts, pf
